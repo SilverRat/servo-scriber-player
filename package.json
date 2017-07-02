@@ -1,0 +1,11 @@
+{
+  "name": "servoscriberplayerjs",
+  "version": "1.0.0",
+  "description": "Plays ssf files created by Server Scriber for the Pololu Maestro servo controller",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "",
+  "license": "MIT"
+}
