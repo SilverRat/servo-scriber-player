@@ -1,10 +1,10 @@
 const fs = require('fs');
+var Sound = require('node-aplay');
+new Sound('/ssf/Beautiful Tomorrow 3 - good.wav').play();
 
 const myFile = fs.readFileSync('ssf/Beautiful Tomorrow 3 - good.ssf','utf-8');
 
-const myData = myFile.toString().split("\r\n");
-
-//console.log(myFile);
+const myData = myFile.toString().split("\n");
 
 var currentIndex = 0;
 const fileName = myData[currentIndex];
@@ -47,17 +47,6 @@ for (var y=0; y < 25; y++){
     // console.log (positionData[y].positions);
 }
 
-// File Format
-//  Wave File
-//  Milliseconds
-//  Servo Names (x24)
-//  Servo ?? (x24)
-//  WaveTimes Label
-//  WaveTime Entries (integer)
-//  WaveTimes
-//  blank
-// 0-23 servos
-//  ServoXpos
-//  Number of Servo position Values
-//  Servo Values
-//  Blank
+// with ability to pause/resume: 
+// var music = new Sound('/path/to/the/file/filename.wav');
+// music.play();
