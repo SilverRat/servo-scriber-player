@@ -1,6 +1,10 @@
 const fs = require('fs');
 var Sound = require('node-aplay');
-new Sound('/ssf/Beautiful Tomorrow 3 - good.wav').play();
+
+// Sound not working.  Works from command line, but not in Node. . .
+//  aplay "./ssf/Great Big Beautiful Tomorrow 2.wav"
+new Sound('ssf/Beautiful Tomorrow 3 - good.wav').play();
+
 
 const myFile = fs.readFileSync('ssf/Beautiful Tomorrow 3 - good.ssf','utf-8');
 
