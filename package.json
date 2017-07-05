@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "node-aplay": "^1.0.3"
+    "node-aplay": "^1.0.3",
+    "serialport": "^4.0.7"
   }
 }
