@@ -7,9 +7,10 @@ var Sound = require('node-aplay');
 var music = new Sound();
 music.play('ssf/Beautiful Tomorrow 3 - good.wav');
 
-
+// Show File name, needs to be put in a config file.  Array of shows
 const myFile = fs.readFileSync('ssf/Beautiful Tomorrow 3 - good.ssf','utf-8');
 
+// Line separator, needs to be in a config file too \n for linux, \r\n for win.
 const myData = myFile.toString().split("\n");
 
 var currentIndex = 0;
@@ -55,7 +56,7 @@ for (var y=0; y < 25; y++){
 
 // Remember, the controller power is USB until the power is hard wired to draw
 //  off the power supply.
-//  serial port for the pi  /dev/ttyAMA0 - Undefined GPIO?
+//  serial port for the pi  /dev/ttyAMA0 - GPIO
 //  serial port for the pi  /dev/ttyACM0 - USB
 //  serial port for the pi  /dev/ttyACM1 - USB
 var SerialPort = require('serialport');
@@ -72,25 +73,38 @@ SerialPort.list(function (err, ports) {
 
 */
 
-// Permission errors on ttyAMAO - run as sudo, correct permissions later.
-var port = new SerialPort('/dev/ttyAMA0', function(err){
+// Permission errors on ttyAMAO - 
+//  Need to run as sudo, correct permissions later.
+var port = new SerialPort('/dev/ttyACM0', function(err){
     if (err) {
-       return console.log("error: " + err.message);
+       return console.log("Error opening serial port: " + err.message);
     }
-        console.log ('moving robot');
-        port.write(0xAA);
-        for (var y=0; y < positionData[1].positions.length; y++) {
+        console.log ('Ready to start moving robot');
+        //port.write(0xAA);
+        sleep(400);
+
+        for (var y=0; y < positionData[1].positions.length -665; y++) {
             // setup buffer, 4 byte, byte array.
             var buffer = new Uint8Array(4); 
             buffer[0] = 0x84;  // Compact Protocol
             buffer[1] = 0x00;  // Channel Number
             buffer[2] = positionData[1].positions[y] & 0x7f;  // Target
             buffer[3] = (positionData[1].positions[y] >>> 7) & 0x7f;  // Target
-            port.write(buffer);
-            console.log('buffer: ' + buffer)
+            port.write(buffer, function(err) {
+                if (err) {
+                    return console.log("Serial Port write error: " + err.message);
+                }
+            });
+            console.log('Ear buffer, frame ' + y +' = ' + buffer)
+            port.drain();
             sleep(duration);  // delay;
         }
+
+        console.log('Finished writing data.');
+        //port.close();
 });
+
+console.log('Program Complete.');
 
 
 function sleep(milliseconds) {

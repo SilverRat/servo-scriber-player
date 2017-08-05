@@ -10,6 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "node-aplay": "^1.0.3",
-    "serialport": "^4.0.7"
+    "serialport": "^5.0.0"
   }
 }
