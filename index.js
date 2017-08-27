@@ -4,8 +4,9 @@ var Sound = require('node-aplay');
 // Sound not working.  Works from command line, but not in Node. . .
 //  aplay "./ssf/Great Big Beautiful Tomorrow 2.wav"
 // new Sound('ssf/Beautiful Tomorrow 3 - good.wav').play();
-var music = new Sound();
-music.play('ssf/Beautiful Tomorrow 3 - good.wav');
+// var music = new Sound('ssf/Beautiful Tomorrow 3 - good.wav').play();
+
+// Punt to FS/LAME/SPEAKER
 
 // Show File name, needs to be put in a config file.  Array of shows
 const myFile = fs.readFileSync('ssf/Beautiful Tomorrow 3 - good.ssf','utf-8');
@@ -61,51 +62,48 @@ for (var y=0; y < 25; y++){
 //  serial port for the pi  /dev/ttyACM1 - USB
 var SerialPort = require('serialport');
 
-
-/*
-SerialPort.list(function (err, ports) {
-  ports.forEach(function(port) {
-    console.log(port.comName);
-    console.log(port.pnpId);
-    console.log(port.manufacturer);
-  });
-});
-
-*/
-
 // Permission errors on ttyAMAO - 
-//  Need to run as sudo, correct permissions later.
-var port = new SerialPort('/dev/ttyACM0', function(err){
-    if (err) {
-       return console.log("Error opening serial port: " + err.message);
-    }
-        console.log ('Ready to start moving robot');
-        //port.write(0xAA);
-        sleep(400);
+//  Need to RUN AS SUDO, correct permissions later.
+//  sudo chmod 660 /dev/ttyAMA0
+//  sudo usermod -G tty pi
+//  sudo chmod 777 /dev/ttyAMA0
 
-        for (var y=0; y < positionData[1].positions.length -665; y++) {
-            // setup buffer, 4 byte, byte array.
-            var buffer = new Uint8Array(4); 
-            buffer[0] = 0x84;  // Compact Protocol
-            buffer[1] = 0x00;  // Channel Number
-            buffer[2] = positionData[1].positions[y] & 0x7f;  // Target
-            buffer[3] = (positionData[1].positions[y] >>> 7) & 0x7f;  // Target
-            port.write(buffer, function(err) {
-                if (err) {
-                    return console.log("Serial Port write error: " + err.message);
-                }
-            });
-            console.log('Ear buffer, frame ' + y +' = ' + buffer)
-            port.drain();
-            sleep(duration);  // delay;
-        }
-
-        console.log('Finished writing data.');
-        //port.close();
-});
+console.log ('Ready to start moving robot');
+sleep(400);
 
 console.log('Program Complete.');
+// });
+writeLoop(positionData, duration, 0);
 
+function writeLoop(positionData, duration, y) {
+    // for (var y=0; y < positionData[2].positions.length - 575; y++) {
+    if (y < positionData[2].positions.length) {
+        // setup buffer, 4 byte, byte array.
+        let buffer = new Uint8Array(4); 
+        buffer[0] = 0x84;  // Compact Protocol
+        buffer[1] = 0x02;  // Channel Number
+        buffer[2] = positionData[2].positions[y] & 0x7f;  // Target
+        buffer[3] = (positionData[2].positions[y] >>> 7) & 0x7f;  // Target
+        let port = new SerialPort('/dev/ttyAMA0', function(err) {
+            if(err) {
+                console.log("Error Opening Port.", err);
+            } else {
+                port.write(buffer, function(err) {
+                    if (err) {
+                        console.log("Serial Port write error: " + err.message);
+                    }
+                    console.log('Ear buffer, frame ' + y +' = ' + buffer);
+                    port.close();
+                    //sleep(duration);  // delay;
+                    setTimeout(function(){ 
+                        writeLoop(positionData, duration, y+1);},duration);                
+                });
+            }
+        });
+        //console.log('Ear buffer, frame ' + y +' = ' + buffer)
+        //port.drain();
+    }
+}
 
 function sleep(milliseconds) {
   var start = new Date().getTime();
@@ -114,4 +112,14 @@ function sleep(milliseconds) {
       break;
     }
   }
+}
+
+function listPorts() {
+    SerialPort.list(function (err, ports) {
+        ports.forEach(function(port) {
+            console.log(port.comName);
+            console.log(port.pnpId);
+            console.log(port.manufacturer);
+        });
+    });
 }
