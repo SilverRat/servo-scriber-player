@@ -1,12 +1,16 @@
 const fs = require('fs');
 var Sound = require('node-aplay');
+const lame = require('lame');
+const Speaker = require('speaker');
 
-// Sound not working.  Works from command line, but not in Node. . .
+// Sound from command line. . .
 //  aplay "./ssf/Great Big Beautiful Tomorrow 2.wav"
-// new Sound('ssf/Beautiful Tomorrow 3 - good.wav').play();
-// var music = new Sound('ssf/Beautiful Tomorrow 3 - good.wav').play();
+var music = new Sound('./ssf/Great Big Beautiful Tomorrow 2.wav').play();
 
 // Punt to FS/LAME/SPEAKER
+//var musicFile = fs.createReadStream('./ssf/Great Big Beautiful Tomorrow 2.wav')
+//.pipe(new lame.Decoder())
+//.on("format",function (format) {this.pipe(new Speaker(format));});
 
 // Show File name, needs to be put in a config file.  Array of shows
 const myFile = fs.readFileSync('ssf/Beautiful Tomorrow 3 - good.ssf','utf-8');
